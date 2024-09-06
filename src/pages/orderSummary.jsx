@@ -1,21 +1,14 @@
-import { useCallback, useMemo } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useCallback } from "react";
+import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { useCartItems, useTotalPrice } from "../utils/constants";
 
 const OrderSummary = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const cartItems = useSelector((state) => state.cartItems);
+  const cartItems = useCartItems();
 
-  const totalPrice = useMemo(() => {
-    return cartItems.reduce((total, item) => {
-      const cleanPrice = item.price.replace(/[^0-9.-]+/g, "");
-      const price = parseFloat(cleanPrice);
-      const quantity = parseInt(item.quantity, 10);
-
-      return total + price * quantity;
-    }, 0);
-  }, [cartItems]);
+  const totalPrice = useTotalPrice();
 
   const handleContinueShopping = useCallback(() => {
     dispatch({ type: "clearCart" });

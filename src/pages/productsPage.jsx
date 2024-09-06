@@ -1,28 +1,13 @@
 import { useState, useMemo, useCallback } from "react";
-import {
-  useLoaderData,
-  NavLink,
-  useNavigate,
-  useLocation,
-} from "react-router-dom";
+import { useLoaderData, NavLink } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 
 const ProductsPage = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
   const { products } = useLoaderData();
   const dispatch = useDispatch();
   const [selectedCategory, setSelectedCategory] = useState("All");
 
-  const allUsers = useSelector((state) => state.allUsers);
   const searchQuery = useSelector((state) => state.searchQuery);
-  console.log("in products page", searchQuery);
-
-  // Check if any user is authenticated
-  const isAuthenticated = useMemo(
-    () => allUsers.some((userObj) => userObj.isAuthenticated),
-    [allUsers]
-  );
 
   const categories = useMemo(
     () => [
@@ -47,14 +32,12 @@ const ProductsPage = () => {
   const filteredProducts = useMemo(() => {
     let filtered = products;
 
-    // apply category filter if a specific category is selected
     if (selectedCategory !== "All") {
       filtered = filtered.filter(
         (product) => product.category === selectedCategory
       );
     }
 
-    // apply search query filter if there's a search query
     if (searchQuery.trim() !== "") {
       filtered = filtered.filter((product) =>
         product.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -64,47 +47,38 @@ const ProductsPage = () => {
     return filtered;
   }, [products, selectedCategory, searchQuery]);
 
-  // Memoize handleCart to avoid re-creating it on every render
   const handleCart = useCallback(
     (product) => {
-      if (!isAuthenticated) {
-        navigate("/login", { state: { from: location.pathname, product } });
-      } else {
-        dispatch({ type: "addToCart", payload: product });
-      }
+      dispatch({ type: "addToCart", payload: product });
     },
-    [isAuthenticated, navigate, location.pathname, dispatch]
+    [dispatch]
   );
 
   return (
-    <div className="bg-gray-100 min-h-screen">
-      {/* category filter */}
-      <section className="py-10 bg-white shadow-md">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold mb-6 text-center">
-            Filter by Category
-          </h2>
-          <div className="flex justify-center space-x-4 mb-6">
-            {categories.map((category) => (
-              <button
-                key={category}
-                onClick={() => setSelectedCategory(category)}
-                className={`px-4 py-2 rounded ${
-                  selectedCategory === category
-                    ? "bg-yellow-500 text-white"
-                    : "bg-gray-200 text-gray-800"
-                }`}
-              >
-                {category}
-              </button>
-            ))}
-          </div>
+    <div className="bg-gray-100 min-h-screen flex">
+      {/* Sidebar */}
+      <aside className="w-64 bg-white shadow-md p-4">
+        <h2 className="text-2xl font-bold mb-4">Categories</h2>
+        <div className="flex flex-col space-y-2">
+          {categories.map((category) => (
+            <button
+              key={category}
+              onClick={() => setSelectedCategory(category)}
+              className={`px-4 py-2 rounded ${
+                selectedCategory === category
+                  ? "bg-yellow-500 text-white"
+                  : "bg-gray-200 text-gray-800"
+              }`}
+            >
+              {category}
+            </button>
+          ))}
         </div>
-      </section>
+      </aside>
 
-      {/* products list */}
-      <section className="py-10">
-        <div className="container mx-auto px-4">
+      {/* Main Content */}
+      <main className="flex-1 p-4">
+        <section className="py-10">
           <h2 className="text-3xl font-bold mb-6 text-center">All Products</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {filteredProducts.map((product) => (
@@ -138,8 +112,8 @@ const ProductsPage = () => {
               </div>
             ))}
           </div>
-        </div>
-      </section>
+        </section>
+      </main>
     </div>
   );
 };

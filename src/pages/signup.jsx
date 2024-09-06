@@ -2,11 +2,14 @@ import React from "react";
 import { NavLink, Form, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { signupAction } from "./signupAction";
+import { useAllUsers } from "../utils/constants";
+import Button from "../components/Button";
+import Card from "../components/Card";
 
 const Signup = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const state = useSelector((state) => state.allUsers); // Get all users from the state
+  const state = useAllUsers(); // Get all users from the state
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -24,11 +27,8 @@ const Signup = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white">
-      <Form
-        className="w-full max-w-md bg-gray-800 p-8 rounded-lg shadow-lg"
-        onSubmit={handleSubmit}
-      >
+    <Card>
+      <Form onSubmit={handleSubmit}>
         <h2 className="text-2xl font-bold mb-6 text-center">Signup</h2>
 
         <label htmlFor="name" className="block text-gray-300 font-semibold">
@@ -61,19 +61,14 @@ const Signup = () => {
           className="w-full p-2 mt-2 mb-6 border border-gray-600 rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-yellow-500"
         />
 
-        <button
-          type="submit"
-          className="w-full bg-yellow-500 text-gray-800 font-bold py-2 px-4 rounded hover:bg-yellow-600"
-        >
-          Signup
-        </button>
+        <Button type="submit">Signup</Button>
         <div className="mt-4 text-center">
           <NavLink to="/login" className="text-yellow-500 hover:underline">
             Already have an account? Login
           </NavLink>
         </div>
       </Form>
-    </div>
+    </Card>
   );
 };
 

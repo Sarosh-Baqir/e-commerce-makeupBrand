@@ -1,10 +1,14 @@
-import { useState, useMemo, useCallback, useRef, useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useState, useMemo } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
+import {
+  useAllUsers,
+  useCartItems,
+  useCartItemCount,
+  useTotalPrice,
+} from "../utils/constants";
 
 const Checkout = () => {
   const navigate = useNavigate();
-  const inputRef = useRef();
   const [formData, setFormData] = useState({
     name: "",
     address: "",
@@ -15,39 +19,33 @@ const Checkout = () => {
     phone: "",
   });
 
-  const cartItems = useSelector((state) => state.cartItems);
-  const cartItemCount = useSelector((state) => state.cartItemCount);
+  // Use the imported hooks to access state
+  const allUsers = useAllUsers();
+  const cartItems = useCartItems();
+  const cartItemCount = useCartItemCount();
+  const totalPrice = useTotalPrice();
 
-  const totalPrice = useMemo(() => {
-    return cartItems.reduce((total, item) => {
-      const cleanPrice = item.price.replace(/[^0-9.-]+/g, "");
-      const price = parseFloat(cleanPrice);
-      const quantity = parseInt(item.quantity, 10);
+  const authenticatedUser = useMemo(
+    () => allUsers.find((userObj) => userObj.isAuthenticated),
+    [allUsers]
+  );
 
-      return total + price * quantity;
-    }, 0);
-  }, [cartItems]);
+  const userName = authenticatedUser?.user?.name || "No User";
+  const userEmail = authenticatedUser?.user?.email || "No Email";
 
-  const handleChange = useCallback((e) => {
+  const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevFormData) => ({
       ...prevFormData,
       [name]: value,
     }));
-  }, []);
+  };
 
-  const handleSubmit = useCallback(
-    (e) => {
-      e.preventDefault();
-      console.log("shipping information:", formData);
-      navigate("/orderSummary");
-    },
-    [formData, navigate]
-  );
-
-  useEffect(() => {
-    inputRef.current.focus();
-  }, []);
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log("shipping information:", formData);
+    navigate("/orderSummary");
+  };
 
   return (
     <div className="bg-gray-100 min-h-screen">
@@ -120,11 +118,24 @@ const Checkout = () => {
                   <input
                     id="name"
                     type="text"
-                    ref={inputRef}
+                    value={userName}
                     onChange={handleChange}
                     className="w-full p-2 border border-gray-300 rounded-lg"
                   />
                 </div>
+                <div className="mb-4">
+                  <label className="block text-gray-700 mb-2" htmlFor="email">
+                    Email
+                  </label>
+                  <input
+                    id="email"
+                    type="email"
+                    value={userEmail}
+                    onChange={handleChange}
+                    className="w-full p-2 border border-gray-300 rounded-lg"
+                  />
+                </div>
+
                 <div className="mb-4">
                   <label className="block text-gray-700 mb-2" htmlFor="address">
                     Address
@@ -165,17 +176,6 @@ const Checkout = () => {
                   <input
                     id="zip"
                     type="text"
-                    onChange={handleChange}
-                    className="w-full p-2 border border-gray-300 rounded-lg"
-                  />
-                </div>
-                <div className="mb-4">
-                  <label className="block text-gray-700 mb-2" htmlFor="email">
-                    Email
-                  </label>
-                  <input
-                    id="email"
-                    type="email"
                     onChange={handleChange}
                     className="w-full p-2 border border-gray-300 rounded-lg"
                   />

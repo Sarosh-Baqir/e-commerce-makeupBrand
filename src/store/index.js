@@ -104,12 +104,15 @@ const authenticationReducer = (
       };
 
     case "searchProduct":
-      {
-        console.log("in store", state.searchQuery);
-      }
       return {
         ...state,
         searchQuery: action.payload,
+      };
+
+    case "resetSearch":
+      return {
+        ...state,
+        searchQuery: "",
       };
 
     default:

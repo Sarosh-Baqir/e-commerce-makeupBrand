@@ -1,16 +1,14 @@
-import React, { useState } from "react";
-import { NavLink, useNavigate, Form } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
+import { useState, useEffect } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import { FaSearch, FaUser, FaShoppingCart } from "react-icons/fa";
+import { useCartItemCount, useIsAuthenticated } from "../utils/constants";
 
 function Navbar() {
-  // const [cartItemCount, setCartItemCount] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
-  const cartItemCount = useSelector((state) => state.cartItemCount);
+  const cartItemCount = useCartItemCount();
   const navigate = useNavigate();
-  const allUsers = useSelector((state) => state.allUsers); // Access allUsers from Redux
-  const isAuthenticated = allUsers.some((userObj) => userObj.isAuthenticated);
-
+  const isAuthenticated = useIsAuthenticated();
   const dispatch = useDispatch();
 
   const handleLogout = () => {
@@ -21,13 +19,14 @@ function Navbar() {
     navigate("/cart");
   };
 
-  const handleSearch = (e) => {
-    console.log("search form submitted", searchQuery);
-    e.preventDefault();
-
-    dispatch({ type: "searchProduct", payload: searchQuery });
-    navigate("/products");
-  };
+  useEffect(() => {
+    if (searchQuery.trim() === "") {
+      dispatch({ type: "resetSearch" });
+    } else {
+      dispatch({ type: "searchProduct", payload: searchQuery });
+      navigate("/products");
+    }
+  }, [searchQuery, dispatch, navigate]);
 
   return (
     <nav className="bg-gray-800 text-white p-4 flex items-center justify-between">
@@ -39,20 +38,18 @@ function Navbar() {
         MakeupShop
       </NavLink>
 
-      <div className="flex-grow mx-4 hidden md:flex items-center">
-        <Form onSubmit={handleSearch} className="relative w-full">
-          <input
-            type="text"
-            placeholder="Search for products..."
-            className="w-full p-2 pl-10 rounded-lg bg-gray-700 text-white"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-          <FaSearch
-            className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-400"
-            size={18}
-          />
-        </Form>
+      <div className="flex-grow mx-4 hidden md:flex items-center relative">
+        <input
+          type="text"
+          placeholder="Search for products..."
+          className="w-full p-2 pl-10 rounded-lg bg-gray-700 text-white"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+        <FaSearch
+          className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-400"
+          size={18}
+        />
       </div>
 
       <div className="flex items-center space-x-4">
@@ -71,7 +68,6 @@ function Navbar() {
           Sign Up
         </NavLink>
 
-        {/* show logout button if the user is authenticated */}
         {isAuthenticated && (
           <button
             onClick={handleLogout}
@@ -88,7 +84,7 @@ function Navbar() {
         >
           <FaShoppingCart onClick={handleCart} />
 
-          {cartItemCount > 0 && ( // show counter only if it's greater than 0
+          {cartItemCount > 0 && (
             <span className="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full px-1 py-0.5">
               {cartItemCount}
             </span>

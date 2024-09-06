@@ -1,24 +1,23 @@
-import { useMemo, useCallback } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { NavLink } from "react-router-dom";
+import { useCallback } from "react";
+import { useDispatch } from "react-redux";
+import { NavLink, useNavigate } from "react-router-dom";
+
+import {
+  useCartItems,
+  useCartItemCount,
+  useIsAuthenticated,
+  useTotalPrice,
+} from "../utils/constants";
 
 const Cart = () => {
   const dispatch = useDispatch();
-  const cartItems = useSelector((state) => state.cartItems);
-  const cartItemCount = useSelector((state) => state.cartItemCount);
+  const navigate = useNavigate();
 
-  // Memoize the total price to avoid recalculating unless cartItems changes
-  const totalPrice = useMemo(
-    () =>
-      cartItems.reduce(
-        (total, item) =>
-          total +
-          (parseFloat(item.price.replace(/[^0-9.-]+/g, "")) || 0) *
-            (Number(item.quantity) || 0),
-        0
-      ),
-    [cartItems]
-  );
+  // Use the imported hooks to access state
+  const cartItems = useCartItems();
+  const cartItemCount = useCartItemCount();
+  const isAuthenticated = useIsAuthenticated();
+  const totalPrice = useTotalPrice();
 
   // memoize the handleRemoveFromCart function to prevent recreation on each render
   const handleRemoveFromCart = useCallback(
@@ -27,6 +26,14 @@ const Cart = () => {
     },
     [dispatch]
   );
+
+  const handleCheckout = () => {
+    if (!isAuthenticated) {
+      navigate("/login");
+    } else {
+      navigate("/checkout");
+    }
+  };
 
   return (
     <div className="bg-gray-100 min-h-screen">
@@ -89,12 +96,12 @@ const Cart = () => {
                 <span>Total</span>
                 <span>${(totalPrice + 5).toFixed(2)}</span>
               </div>
-              <NavLink
-                to="/checkout"
-                className="block mt-6 bg-yellow-500 text-white text-center py-3 rounded-lg font-bold hover:bg-yellow-600"
+              <button
+                onClick={handleCheckout}
+                className="inline-block mt-6 bg-yellow-500 text-white py-3 px-6 rounded-lg font-bold hover:bg-yellow-600"
               >
                 Proceed to Checkout
-              </NavLink>
+              </button>
             </div>
           </div>
         ) : (

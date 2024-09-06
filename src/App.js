@@ -1,20 +1,20 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 import Layout from "./components/layout";
-import ErrorPage from "./components/errorPage";
-import Home from "./components/home";
-import Signup from "./components/signup";
-import Login from "./components/login";
-import { signupAction } from "./components/signupAction";
-import { loginAction } from "./components/loginAction";
-import { loader as homeLoader } from "./components/loader";
-import ProductsPage from "./components/productsPage";
-import Dashboard from "./components/dashboard";
+import ErrorPage from "./pages/errorPage";
+import Home from "./pages/home";
+import Signup from "./pages/signup";
+import Login from "./pages/login";
+import { signupAction } from "./pages/signupAction";
+import { loginAction } from "./pages/loginAction";
+import { loader as homeLoader } from "./utils/loader";
+import ProductsPage from "./pages/productsPage";
+import Dashboard from "./pages/dashboard";
 import ProtectedRoute from "./components/protectedRoute";
-import Cart from "./components/cart";
+import Cart from "./pages/cart";
 import "./App.css";
-import Checkout from "./components/checkout";
-import OrderSummary from "./components/orderSummary";
+import Checkout from "./pages/checkout";
+import OrderSummary from "./pages/orderSummary";
 
 function App() {
   const router = createBrowserRouter([
@@ -55,7 +55,7 @@ function App() {
 
         {
           path: "/checkout",
-          element: <Checkout />,
+          element: <ProtectedRoute element={<Checkout />} />,
         },
 
         {
